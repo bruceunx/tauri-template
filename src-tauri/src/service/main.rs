@@ -1,5 +1,5 @@
 use std::pin::Pin;
-// use std::sync::{mpsc, Arc, Mutex};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread;
 use std::time::{Duration, SystemTime};
@@ -22,15 +22,19 @@ trait New {
 pub struct MyGreeter {
     state: String,
     rx: Arc<Mutex<mpsc::Receiver<String>>>,
+    should_stop: Arc<AtomicBool>,
 }
 
 impl New for MyGreeter {
     fn new() -> MyGreeter {
+        let should_stop = Arc::new(AtomicBool::new(false));
+
         let (tx, rx) = mpsc::channel(100);
         let rec = Arc::new(Mutex::new(rx));
         let greet = MyGreeter {
             rx: rec,
             state: "".to_string(),
+            should_stop,
         };
         tokio::spawn(async move {
             loop {
@@ -58,6 +62,9 @@ impl Greeter for MyGreeter {
         request: Request<HelloRequest>,
     ) -> Result<Response<HelloReply>, Status> {
         println!("Got a request: {:?}", request);
+
+        self.should_stop.store(true, Ordering::Relaxed);
+
         let mut reveiver = self.rx.lock().await;
         let val = reveiver.recv().await.unwrap();
         let reply = HelloReply {
@@ -73,8 +80,15 @@ impl Greeter for MyGreeter {
     ) -> Result<Response<Self::StreamDataStream>, Status> {
         println!("Got a request: {:?}", request);
         let (tx, rx) = mpsc::channel(100);
+
+        let should_stop = self.should_stop.clone();
+        should_stop.store(false, Ordering::Relaxed);
+
         tokio::spawn(async move {
             loop {
+                if should_stop.load(Ordering::Relaxed) {
+                    break;
+                }
                 tokio::time::sleep(Duration::from_secs(1)).await;
                 let timestamp = SystemTime::now()
                     .duration_since(SystemTime::UNIX_EPOCH)

@@ -12,6 +12,10 @@ function App() {
     setGreetMsg(await invoke("stream_client", { name }));
   }
 
+  async function onStop() {
+    await invoke("greet_client", { name });
+  }
+
   useEffect(() => {
     listen("greet", (e: any) => {
       setGreetMsg(() => e.payload.message);
@@ -51,6 +55,7 @@ function App() {
         <button type="submit">Greet</button>
       </form>
 
+      <button onClick={onStop}>stop</button>
       <p>{greetMsg}</p>
     </div>
   );
