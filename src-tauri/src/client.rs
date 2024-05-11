@@ -3,7 +3,14 @@ pub mod hello_world {
 }
 
 use hello_world::greeter_client::GreeterClient;
-use hello_world::HelloRequest;
+use hello_world::{DataRequest, HelloRequest};
+use tauri::Manager;
+use tauri::Window;
+
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+    message: String,
+}
 
 #[allow(dead_code)]
 #[tauri::command]
@@ -18,6 +25,24 @@ pub async fn greet_client(name: &str) -> Result<String, String> {
         .await
         .map_err(|e| format!("{:?}", e))?;
     Ok(response.into_inner().message)
+}
+
+#[allow(dead_code)]
+#[tauri::command]
+pub async fn stream_client(window: Window, name: String) {
+    let mut client = GreeterClient::connect("http://[::1]:50051")
+        .await
+        .map_err(|e| format!("{:?}", e))
+        .unwrap();
+    let request = tonic::Request::new(DataRequest {
+        message: name.into(),
+    });
+
+    let mut stream = client.stream_data(request).await.unwrap().into_inner();
+    while let Some(res) = stream.message().await.unwrap() {
+        let _ = window.emit("greet", Payload { message: res.data });
+        // println!("{:?}", res);
+    }
 }
 
 // #[derive(Debug, Default)]

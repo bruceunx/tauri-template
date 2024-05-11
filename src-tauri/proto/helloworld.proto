@@ -3,6 +3,7 @@ package helloworld;
 
 service Greeter {
   rpc SayHello(HelloRequest) returns (HelloReply);
+  rpc StreamData(DataRequest) returns (stream DataResponse);
 }
 
 message HelloRequest {
@@ -11,4 +12,12 @@ message HelloRequest {
 
 message HelloReply {
   string message = 1;
+}
+
+message DataRequest {
+  string message = 1;
+}
+
+message DataResponse {
+  string data = 1;
 }

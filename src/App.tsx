@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import "./App.css";
 
 function App() {
@@ -8,9 +9,14 @@ function App() {
   const [name, setName] = useState("");
 
   async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet_client", { name }));
+    setGreetMsg(await invoke("stream_client", { name }));
   }
+
+  useEffect(() => {
+    listen("greet", (e: any) => {
+      setGreetMsg(() => e.payload.message);
+    });
+  }, []);
 
   return (
     <div className="container">
