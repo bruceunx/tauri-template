@@ -26,7 +26,7 @@ function App() {
   }
 
   async function onInsert() {
-    await invoke("insert_data", { name: "test", age: 32 });
+    await invoke("insert_data", { entry: { name, age: 32 } });
   }
 
   useEffect(() => {
@@ -46,7 +46,7 @@ function App() {
           }}
         >
           <input
-            className="p-2 rounded-xl"
+            className="p-2 rounded-xl text-black"
             onChange={(e) => setName(e.currentTarget.value)}
             placeholder="Enter a device"
           />

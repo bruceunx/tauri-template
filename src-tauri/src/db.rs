@@ -34,15 +34,8 @@ pub(crate) async fn connect() -> Pool<MySql> {
 #[tauri::command]
 pub(crate) async fn insert_data(
     state: State<'_, MySqlPoolWrapper>,
-    name: String,
-    age: i32,
+    entry: DataEntry,
 ) -> Result<(), String> {
-    println!("insert_data: {} {}", &name, age);
-    println!("state: {:?}", &state.pool);
-    let entry = DataEntry {
-        name: name.to_string(),
-        age,
-    };
     let res = sqlx::query("INSERT INTO data (name, age) VALUES (?, ?)")
         .bind(&entry.name)
         .bind(entry.age)
