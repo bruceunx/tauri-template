@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import "./App.css";
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
@@ -23,25 +21,9 @@ function App() {
   }, []);
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
+    <div className="h-screen w-full flex flex-row justify-center bg-gray-800 text-white space-x-10 p-10">
       <form
-        className="row"
+        className="w-1/2 flex flex-row space-x-5 h-fit"
         onSubmit={(e) => {
           e.preventDefault();
           greet();
@@ -52,11 +34,23 @@ function App() {
           onChange={(e) => setName(e.currentTarget.value)}
           placeholder="Enter a name..."
         />
-        <button type="submit">Greet</button>
+        <button
+          type="submit"
+          className="bg-blue-500 p-2 rounded hover:drop-shadow-lg hover:bg-blue-700 w-full"
+        >
+          Greet
+        </button>
       </form>
 
-      <button onClick={onStop}>stop</button>
-      <p>{greetMsg}</p>
+      <div className="w-1/2">
+        <button
+          onClick={onStop}
+          className="bg-rose-500 p-2 rounded hover:drop-shadow-lg hover:bg-rose-700 w-full"
+        >
+          stop
+        </button>
+        <p>{greetMsg}</p>
+      </div>
     </div>
   );
 }

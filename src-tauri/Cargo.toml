@@ -1,8 +1,8 @@
 [package]
-name = "tauri-template"
-version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+name = "project-template"
+version = "0.0.1"
+description = "Project template for general usage"
+authors = ["bruceunx<bruceunx@outlook.com>"]
 edition = "2021"
 
 [[bin]]

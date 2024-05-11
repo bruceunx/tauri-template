@@ -2437,6 +2437,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "project-template"
+version = "0.0.1"
+dependencies = [
+ "prost",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-shell",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tonic-build",
+]
+
+[[package]]
 name = "prost"
 version = "0.12.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3413,22 +3429,6 @@ dependencies = [
  "webview2-com",
  "windows 0.56.0",
  "wry",
-]
-
-[[package]]
-name = "tauri-template"
-version = "0.0.0"
-dependencies = [
- "prost",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-shell",
- "tokio",
- "tokio-stream",
- "tonic",
- "tonic-build",
 ]
 
 [[package]]
