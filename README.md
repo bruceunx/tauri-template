@@ -1,5 +1,5 @@
 # Tauri + React + Typescript + GRPC + SQLX
 
 <p align="center">
-  <img width="100" height="100" src="./screenshot.png" />
+  <img width="500" height="300" src="./screenshot.png" />
 </p>
