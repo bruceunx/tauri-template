@@ -1,3 +1,6 @@
+<h1 align="center">
+    General Desktop App Template for IoT, Admin Dashboard, etc
+</h1>
 # Tauri + React + Typescript + GRPC + SQLX
 
 <p align="center">
