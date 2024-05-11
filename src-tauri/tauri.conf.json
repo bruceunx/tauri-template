@@ -1,5 +1,5 @@
 {
-  "productName": "tauri-template",
+  "productName": "project template",
   "version": "0.0.0",
   "identifier": "com.tauri.dev",
   "build": {
@@ -8,9 +8,10 @@
     "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
   },
-  "app": {"windows": [
+  "app": {
+    "windows": [
       {
-        "title": "tauri-template",
+        "title": "project template",
         "width": 800,
         "height": 600
       }
