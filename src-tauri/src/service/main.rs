@@ -23,29 +23,38 @@ pub struct MyGreeter {
     state: String,
     rx: Arc<Mutex<mpsc::Receiver<String>>>,
     should_stop: Arc<AtomicBool>,
+    should_send: Arc<AtomicBool>,
 }
 
 impl New for MyGreeter {
     fn new() -> MyGreeter {
         let should_stop = Arc::new(AtomicBool::new(false));
+        let should_send = Arc::new(AtomicBool::new(false));
 
-        let (tx, rx) = mpsc::channel(100);
+        let should_send_clone = should_send.clone();
+
+        let (tx, rx) = mpsc::channel(1);
         let rec = Arc::new(Mutex::new(rx));
         let greet = MyGreeter {
             rx: rec,
             state: "".to_string(),
             should_stop,
+            should_send,
         };
+
         tokio::spawn(async move {
             loop {
                 let timestamp = SystemTime::now()
                     .duration_since(SystemTime::UNIX_EPOCH)
                     .unwrap()
                     .as_secs();
-                let message = format!("[{}] hello from the thread!", timestamp);
-                println!("loop in thread");
-                println!("message: {}", &message);
-                tx.send(message).await.unwrap();
+                let message = format!("{} hello from the thread!", timestamp);
+                println!("server message: {}", &message);
+
+                if should_send_clone.load(Ordering::Relaxed) {
+                    println!("send to stream ->");
+                    tx.send(message).await.unwrap();
+                }
                 thread::sleep(Duration::from_millis(1000))
             }
         });
@@ -64,6 +73,7 @@ impl Greeter for MyGreeter {
         println!("Got a request: {:?}", request);
 
         self.should_stop.store(true, Ordering::Relaxed);
+        self.should_send.store(false, Ordering::Relaxed);
 
         let mut reveiver = self.rx.lock().await;
         let val = reveiver.recv().await.unwrap();
@@ -79,12 +89,18 @@ impl Greeter for MyGreeter {
         request: Request<DataRequest>,
     ) -> Result<Response<Self::StreamDataStream>, Status> {
         println!("Got a request: {:?}", request);
-        let (tx, rx) = mpsc::channel(100);
 
+        let (tx, rx) = mpsc::channel(30);
         let should_stop = self.should_stop.clone();
         should_stop.store(false, Ordering::Relaxed);
 
+        let should_send = self.should_send.clone();
+        should_send.store(true, Ordering::Relaxed);
+
+        let rx_clone = self.rx.clone();
+
         tokio::spawn(async move {
+            let mut receiver = rx_clone.lock().await;
             loop {
                 if should_stop.load(Ordering::Relaxed) {
                     break;
@@ -94,13 +110,24 @@ impl Greeter for MyGreeter {
                     .duration_since(SystemTime::UNIX_EPOCH)
                     .unwrap()
                     .as_secs();
-                tx.send(Ok(DataResponse {
-                    data: format!("{}", timestamp),
-                }))
-                .await
-                .unwrap();
+
+                let message = receiver.recv().await.unwrap();
+                println!("stream - {}", &message);
+                let result = tx
+                    .send(Ok(DataResponse {
+                        data: format!("{} from stream, {}", timestamp, message),
+                    }))
+                    .await;
+                match result {
+                    Ok(_) => (),
+                    Err(_) => {
+                        should_send.store(false, Ordering::Relaxed);
+                        break;
+                    }
+                }
             }
         });
+
         Ok(Response::new(Box::pin(ReceiverStream::new(rx))))
     }
 }

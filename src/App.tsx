@@ -71,9 +71,9 @@ function App() {
           >
             DB_insert
           </button>
-          <p>{greetMsg}</p>
         </div>
       </div>
+      <p className="text-center">{greetMsg}</p>
       <div className="flex flex-row border border-blue-500 mt-2 rounded-xl w-full">
         <GaugeChart className="w-1/2" nrOfLevels={20} percent={0.86} />
         <GaugeChart className="w-1/2" nrOfLevels={20} percent={0.26} />
